@@ -26,7 +26,7 @@ namespace DeliveryTrackerAPI.Controllers
             _deliveryService = deliveryService;
         }
 
-        // GET: api/Drivers
+        // GET: api/Delivery
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DeliveryResponseDto>>> GetDeliveries()
         {
@@ -35,7 +35,7 @@ namespace DeliveryTrackerAPI.Controllers
                 );
         }
 
-        // GET: api/Drivers/5
+        // GET: api/Delivery/5
         [HttpGet("{id}")]
         public async Task<ActionResult<DeliveryResponseDto>> GetDelivery(int id)
         {
@@ -49,7 +49,7 @@ namespace DeliveryTrackerAPI.Controllers
             return _mapper.Map<DeliveryResponseDto>(delivery);
         }
 
-        // PUT: api/Drivers/5
+        // PUT: api/Delivery/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDelivery(int id, DeliveryRequestDto delivery)
@@ -71,7 +71,7 @@ namespace DeliveryTrackerAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Drivers
+        // POST: api/Delivery
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<DeliveryResponseDto>> PostDriver(DeliveryResponseDto model)
@@ -82,7 +82,7 @@ namespace DeliveryTrackerAPI.Controllers
             return CreatedAtAction("GetDelivery", new { id = delivery.Id }, _mapper.Map<DeliveryResponseDto>(delivery));
         }
 
-        // DELETE: api/Drivers/5
+        // DELETE: api/Delivery/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDelivery(int id)
         {
