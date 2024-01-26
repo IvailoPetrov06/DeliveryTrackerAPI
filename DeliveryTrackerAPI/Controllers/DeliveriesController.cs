@@ -28,7 +28,7 @@ namespace DeliveryTrackerAPI.Controllers
 
         // GET: api/Drivers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DeliveryResponseDto>>> GetDrivers()
+        public async Task<ActionResult<IEnumerable<DeliveryResponseDto>>> GetDeliveries()
         {
             return _mapper.Map<List<DeliveryResponseDto>>(
                 await _deliveryService.GetAll()
@@ -37,7 +37,7 @@ namespace DeliveryTrackerAPI.Controllers
 
         // GET: api/Drivers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<DeliveryResponseDto>> GetDriver(int id)
+        public async Task<ActionResult<DeliveryResponseDto>> GetDelivery(int id)
         {
             var delivery = await _deliveryService.GetById(id);
 
@@ -52,7 +52,7 @@ namespace DeliveryTrackerAPI.Controllers
         // PUT: api/Drivers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDriver(int id, DeliveryRequestDto delivery)
+        public async Task<IActionResult> PutDelivery(int id, DeliveryRequestDto delivery)
         {
             if (id != delivery.Id)
             {
@@ -84,7 +84,7 @@ namespace DeliveryTrackerAPI.Controllers
 
         // DELETE: api/Drivers/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDriver(int id)
+        public async Task<IActionResult> DeleteDelivery(int id)
         {
             _deliveryService.Delete(id);
             return NoContent();
