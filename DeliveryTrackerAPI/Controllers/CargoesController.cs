@@ -80,7 +80,7 @@ namespace DeliveryTrackerAPI.Controllers
             var cargo = _mapper.Map<Cargo>(model);
 
             await _cargoservice.Add(cargo);
-            return CreatedAtAction("GetCargo", new { id = cargo.Id }, _mapper.Map<DriverResponseDto>(cargo));
+            return CreatedAtAction("GetCargo", new { id = cargo.Id }, _mapper.Map<CargoResponse>(cargo));
         }
 
         // DELETE: api/Cargoes/5
