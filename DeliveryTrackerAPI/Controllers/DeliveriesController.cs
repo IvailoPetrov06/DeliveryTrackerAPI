@@ -74,7 +74,7 @@ namespace DeliveryTrackerAPI.Controllers
         // POST: api/Delivery
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<DeliveryResponseDto>> PostDriver(DeliveryResponseDto model)
+        public async Task<ActionResult<DeliveryResponseDto>> PostDelivery(DeliveryResponseDto model)
         {
             var delivery = _mapper.Map<Delivery>(model);
 
