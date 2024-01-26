@@ -6,16 +6,16 @@ namespace DeliveryTrackerAPI.Services
 {
     public class DriverService : IDriverService
     {
-        private readonly IDriverRepository<Driver> _repository;
+        private readonly ICrudRepository<Driver> _repository;
         private readonly AppDbContext _context;
-        public DriverService(IDriverRepository<Driver> repository, AppDbContext context)
+        public DriverService(ICrudRepository<Driver> repository, AppDbContext context)
         {
             _repository = repository;
             _context = context;
         }
-        public Task Add(Driver department)
+        public Task Add(Driver driver)
         {
-            return _repository.AddAsync(department);
+            return _repository.AddAsync(driver);
         }
 
         public Task Delete(int id)
@@ -33,9 +33,9 @@ namespace DeliveryTrackerAPI.Services
             return _repository.GetByIdAsync(id);
         }
 
-        public Task Update(Driver department)
+        public Task Update(Driver driver)
         {
-            return _repository.UpdateAsync(department);
+            return _repository.UpdateAsync(driver);
         }
     }
 }

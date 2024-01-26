@@ -1,5 +1,6 @@
 using AutoMapper;
 using DeliveryTrackerAPI.Data;
+using DeliveryTrackerAPI.Profiles;
 using Microsoft.EntityFrameworkCore;
 using System;
 
@@ -26,7 +27,10 @@ namespace DeliveryTrackerAPI
             builder.Services.AddSwaggerGen();
 
             var configuration = new MapperConfiguration(cfg => {
-              
+
+                cfg.AddProfile<CargoProfile>();
+                cfg.AddProfile<DeliveryProfile>();
+                cfg.AddProfile<DriverProfile>();
 
             });
 

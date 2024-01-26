@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DeliveryTrackerAPI.Data;
+using AutoMapper;
+using DeliveryTrackerAPI.Services;
+using DeliveryTrackerAPI.DTOS.Response;
+using DeliveryTrackerAPI.DTOS.Requests;
 
 namespace DeliveryTrackerAPI.Controllers
 {
@@ -13,69 +17,56 @@ namespace DeliveryTrackerAPI.Controllers
     [ApiController]
     public class CargoesController : ControllerBase
     {
+        private readonly IMapper _mapper;
+        private readonly ICargoService _cargoservice;
 
-        private readonly AppDbContext _context;
-
-        public CargoesController(AppDbContext context)
+        public CargoesController(IMapper mapper, ICargoService cargoservice)
         {
-            _context = context;
+            _mapper = mapper;
+            _cargoservice = cargoservice;
         }
 
         // GET: api/Cargoes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cargo>>> GetCargos()
+        public async Task<ActionResult<IEnumerable<CargoResponseDto>>> GetCargos()
         {
-            if (_context.Cargos == null)
-            {
-                return NotFound();
-            }
-            return await _context.Cargos.ToListAsync();
+
+            return _mapper.Map<List<CargoResponseDto>>(
+                await _cargoservice.GetAll()
+                );
         }
 
         // GET: api/Cargoes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Cargo>> GetCargo(int id)
+        public async Task<ActionResult<CargoResponseDto>> GetCargo(int id)
         {
-            if (_context.Cargos == null)
-            {
-                return NotFound();
-            }
-            var cargo = await _context.Cargos.FindAsync(id);
+            var cargo = await _cargoservice.GetById(id);
 
             if (cargo == null)
             {
                 return NotFound();
             }
 
-            return cargo;
+            return _mapper.Map<CargoResponseDto>(cargo);
         }
 
         // PUT: api/Cargoes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCargo(int id, Cargo cargo)
+        public async Task<IActionResult> PutCargo(int id, CargoRequestDto cargo)
         {
             if (id != cargo.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(cargo).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _cargoservice.Update(_mapper.Map<Cargo>(cargo));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CargoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -84,41 +75,20 @@ namespace DeliveryTrackerAPI.Controllers
         // POST: api/Cargoes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Cargo>> PostCargo(Cargo cargo)
+        public async Task<ActionResult<Cargo>> PostCargo(Cargo model)
         {
-            if (_context.Cargos == null)
-            {
-                return Problem("Entity set 'AppDbContext.Cargos'  is null.");
-            }
-            _context.Cargos.Add(cargo);
-            await _context.SaveChangesAsync();
+            var cargo = _mapper.Map<Cargo>(model);
 
-            return CreatedAtAction("GetCargo", new { id = cargo.Id }, cargo);
+            await _cargoservice.Add(cargo);
+            return CreatedAtAction("GetCargo", new { id = cargo.Id }, _mapper.Map<DriverResponseDto>(cargo));
         }
 
         // DELETE: api/Cargoes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCargo(int id)
         {
-            if (_context.Cargos == null)
-            {
-                return NotFound();
-            }
-            var cargo = await _context.Cargos.FindAsync(id);
-            if (cargo == null)
-            {
-                return NotFound();
-            }
-
-            _context.Cargos.Remove(cargo);
-            await _context.SaveChangesAsync();
-
+            _cargoservice.Delete(id);
             return NoContent();
-        }
-
-        private bool CargoExists(int id)
-        {
-            return (_context.Cargos?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

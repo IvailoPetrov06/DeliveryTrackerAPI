@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DeliveryTrackerAPI.Data;
+using AutoMapper;
+using DeliveryTrackerAPI.Services;
+using DeliveryTrackerAPI.DTOS.Requests;
+using DeliveryTrackerAPI.DTOS.Response;
 
 namespace DeliveryTrackerAPI.Controllers
 {
@@ -13,111 +17,77 @@ namespace DeliveryTrackerAPI.Controllers
     [ApiController]
     public class DeliveriesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
+        private readonly IDeliveryService _deliveryService;
 
-        public DeliveriesController(AppDbContext context)
+        public DeliveriesController(IMapper mapper, IDeliveryService deliveryService)
         {
-            _context = context;
+            _mapper = mapper;
+            _deliveryService = deliveryService;
         }
 
-        // GET: api/Deliveries
+        // GET: api/Drivers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Delivery>>> GetDeliveries()
+        public async Task<ActionResult<IEnumerable<DeliveryResponseDto>>> GetDrivers()
         {
-          if (_context.Deliveries == null)
-          {
-              return NotFound();
-          }
-            return await _context.Deliveries.ToListAsync();
+            return _mapper.Map<List<DeliveryResponseDto>>(
+                await _deliveryService.GetAll()
+                );
         }
 
-        // GET: api/Deliveries/5
+        // GET: api/Drivers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Delivery>> GetDelivery(int id)
+        public async Task<ActionResult<DeliveryResponseDto>> GetDriver(int id)
         {
-          if (_context.Deliveries == null)
-          {
-              return NotFound();
-          }
-            var delivery = await _context.Deliveries.FindAsync(id);
+            var delivery = await _deliveryService.GetById(id);
 
             if (delivery == null)
             {
                 return NotFound();
             }
 
-            return delivery;
+            return _mapper.Map<DeliveryResponseDto>(delivery);
         }
 
-        // PUT: api/Deliveries/5
+        // PUT: api/Drivers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDelivery(int id, Delivery delivery)
+        public async Task<IActionResult> PutDriver(int id, DeliveryRequestDto delivery)
         {
             if (id != delivery.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(delivery).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _deliveryService.Update(_mapper.Map<Delivery>(delivery));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DeliveryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
         }
 
-        // POST: api/Deliveries
+        // POST: api/Drivers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Delivery>> PostDelivery(Delivery delivery)
+        public async Task<ActionResult<DeliveryResponseDto>> PostDriver(DeliveryResponseDto model)
         {
-          if (_context.Deliveries == null)
-          {
-              return Problem("Entity set 'AppDbContext.Deliveries'  is null.");
-          }
-            _context.Deliveries.Add(delivery);
-            await _context.SaveChangesAsync();
+            var delivery = _mapper.Map<Delivery>(model);
 
-            return CreatedAtAction("GetDelivery", new { id = delivery.Id }, delivery);
+            await _deliveryService.Add(delivery);
+            return CreatedAtAction("GetDelivery", new { id = delivery.Id }, _mapper.Map<DeliveryResponseDto>(delivery));
         }
 
-        // DELETE: api/Deliveries/5
+        // DELETE: api/Drivers/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDelivery(int id)
+        public async Task<IActionResult> DeleteDriver(int id)
         {
-            if (_context.Deliveries == null)
-            {
-                return NotFound();
-            }
-            var delivery = await _context.Deliveries.FindAsync(id);
-            if (delivery == null)
-            {
-                return NotFound();
-            }
-
-            _context.Deliveries.Remove(delivery);
-            await _context.SaveChangesAsync();
-
+            _deliveryService.Delete(id);
             return NoContent();
-        }
-
-        private bool DeliveryExists(int id)
-        {
-            return (_context.Deliveries?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryTrackerAPI.Repositories
 {
-    public class DriverRepository<T> : IDriverRepository<T>
+    public class CrudRepository<T> : ICrudRepository<T>
         where T : BaseEntity
     {
         private AppDbContext _context;
 
-        public DriverRepository(AppDbContext context)
+        public CrudRepository(AppDbContext context)
         {
             _context = context;
         }

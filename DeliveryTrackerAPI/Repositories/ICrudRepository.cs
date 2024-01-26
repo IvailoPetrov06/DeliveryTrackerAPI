@@ -2,7 +2,7 @@
 
 namespace DeliveryTrackerAPI.Repositories
 {
-    public interface IDriverRepository<T>
+    public interface ICrudRepository<T>
     {
         public Task<T> GetByIdAsync(int id);
         public Task<List<T>> GetAllAsync();

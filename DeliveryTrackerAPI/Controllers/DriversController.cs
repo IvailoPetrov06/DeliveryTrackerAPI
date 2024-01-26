@@ -20,7 +20,6 @@ namespace DeliveryTrackerAPI.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IDriverService _driverService;
-        private readonly AppDbContext _context;
 
         public DriversController(IMapper mapper, IDriverService driverService)
         {
@@ -30,37 +29,31 @@ namespace DeliveryTrackerAPI.Controllers
 
         // GET: api/Drivers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Driver>>> GetDrivers()
+        public async Task<ActionResult<IEnumerable<DriverResponseDto>>> GetDrivers()
         {
-          if (_context.Drivers == null)
-          {
-              return NotFound();
-          }
-            return await _context.Drivers.ToListAsync();
+            return _mapper.Map<List<DriverResponseDto>>(
+                await _driverService.GetAll()
+                );
         }
 
         // GET: api/Drivers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Driver>> GetDriver(int id)
+        public async Task<ActionResult<DriverResponseDto>> GetDriver(int id)
         {
-          if (_context.Drivers == null)
-          {
-              return NotFound();
-          }
-            var driver = await _context.Drivers.FindAsync(id);
+            var driver = await _driverService.GetById(id);
 
             if (driver == null)
             {
                 return NotFound();
             }
 
-            return driver;
+            return _mapper.Map<DriverResponseDto>(driver);
         }
 
         // PUT: api/Drivers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDriver(int id, Driver driver)
+        public async Task<IActionResult> PutDriver(int id, DriverRequestDto driver)
         {
             if (id != driver.Id)
             {
@@ -73,14 +66,7 @@ namespace DeliveryTrackerAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DriverExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
 
             return NoContent();
@@ -89,41 +75,20 @@ namespace DeliveryTrackerAPI.Controllers
         // POST: api/Drivers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Driver>> PostDriver(Driver driver)
+        public async Task<ActionResult<DriverResponseDto>> PostDriver(DriverResponseDto model)
         {
-          if (_context.Drivers == null)
-          {
-              return Problem("Entity set 'AppDbContext.Drivers'  is null.");
-          }
-            _context.Drivers.Add(driver);
-            await _context.SaveChangesAsync();
+            var driver = _mapper.Map<Driver>(model);
 
-            return CreatedAtAction("GetDriver", new { id = driver.Id }, _mapper.Map<Driver>(driver));
+            await _driverService.Add(driver);
+            return CreatedAtAction("GetDriver", new { id = driver.Id }, _mapper.Map<DriverResponseDto>(driver));
         }
 
         // DELETE: api/Drivers/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDriver(int id)
         {
-            if (_context.Drivers == null)
-            {
-                return NotFound();
-            }
-            var driver = await _context.Drivers.FindAsync(id);
-            if (driver == null)
-            {
-                return NotFound();
-            }
-
-            _context.Drivers.Remove(driver);
-            await _context.SaveChangesAsync();
-
+            _driverService.Delete(id);
             return NoContent();
-        }
-
-        private bool DriverExists(int id)
-        {
-            return (_context.Drivers?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
